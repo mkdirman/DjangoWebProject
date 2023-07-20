@@ -1,16 +1,17 @@
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.views import generic
+from django.utils import timezone
+from django.http import HttpResponseRedirect
 
 from .models import Choice, Question
-
 
 class IndexView(generic.ListView):
     template_name = "polls/index.html"
     context_object_name = "latest_question_list"
 
     def get_queryset(self):
-        """Return the last five published questions."""
+
         return Question.objects.order_by("-pub_date")[:5]
 
 
@@ -44,3 +45,13 @@ def vote(request, question_id):
         # with POST data. This prevents data from being posted twice if a
         # user hits the Back button.
         return HttpResponseRedirect(reverse("polls:results", args=(question.id,)))
+
+def results(request, question_id):
+    question = get_object_or_404(Question, pk=question_id)
+    return render(request, "polls/results.html", {"question": question})
+
+def get_queryset(self):
+
+    return Question.objects.filter(pub_date__lte=timezone.now()).order_by("-pub_date")[
+        :5
+    ]
